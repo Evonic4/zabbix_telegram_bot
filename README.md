@@ -1,6 +1,6 @@
 # zabbix telegram bot
   
-install from root  
+installation on a server with zabbix from root  
 cd /usr/share/zabbix/local && git clone https://github.com/Evonic4/zabbix_telegram_bot.git && chown -R zabbix:zabbix /usr/share/zabbix/local/trbot/ && cp -r -f ./logrotate /etc/logrotate.d/ && chmod +rx /usr/share/zabbix/local/trbot/setup.sh && /usr/share/zabbix/local/trbot/setup.sh  
   
 settings in zabbix server:  
