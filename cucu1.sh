@@ -14,9 +14,9 @@ token=$(sed -n 1"p" $ftb"settings.conf" | tr -d '\r')
 proxy=$(sed -n 12"p" $ftb"settings.conf" | tr -d '\r')
 
 if [ -z "$proxy" ]; then
-	curl -L https://api.telegram.org/bot$token/getUpdates > $cuf"in0.txt"
+	curl -s -L https://api.telegram.org/bot$token/getUpdates > $cuf"in0.txt"
 else
-	curl --proxy $proxy -L https://api.telegram.org/bot$token/getUpdates > $cuf"in0.txt"
+	curl -s --proxy $proxy -L https://api.telegram.org/bot$token/getUpdates > $cuf"in0.txt"
 fi
 
 mv $cuf"in0.txt" $cuf"in.txt"

@@ -31,3 +31,4 @@ perl -pi -e "s/\r\n/\n/" $x
 echo $x
 done
 
+chown -R zabbix:zabbix /usr/share/zabbix/local/trbot/
