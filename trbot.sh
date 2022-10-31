@@ -33,12 +33,17 @@ progons=$(sed -n 11"p" $ftb"settings.conf" | tr -d '\r')
 logger "progons="$progons
 bic="0"
 logger "bic="$bic
-sty=$(sed -n 14"p" $ftb"settings.conf" | tr -d '\r')
-logger "sty="$sty
 last_id=$(sed -n 1"p" $ftb"lastid.txt" | tr -d '\r')
 logger "last_id="$last_id
 start2=$(sed -n 15"p" $ftb"settings.conf" | tr -d '\r')
 logger "start2="$start2
+
+mdt_start=$(sed -n 16"p" $ftb"settings.conf" | sed 's/\://g' | tr -d '\r')
+logger "mdt_start="$mdt_start
+mdt_end=$(sed -n 17"p" $ftb"settings.conf" | sed 's/\://g' | tr -d '\r')
+logger "mdt_end="$mdt_end
+sm=$(sed -n 18"p" $ftb"settings.conf" | tr -d '\r')
+logger "sm="$sm
 
 dddeee=$fhome"delete_id.txt"
 }
@@ -96,8 +101,6 @@ otv=""
 bic="0"
 
 if [ "$text" = "/start" ] || [ "$text" = "/?" ] || [ "$text" = "/help" ] || [ "$text" = "/h" ]; then
-	#[ "$sty" == "0" ] && otv=$fhome"help.txt"
-	#[ "$sty" == "1" ] || [ "$sty" == "2" ] && otv=$fhome"help1.txt"
 	otv=$fhome"help1.txt"
 	send;
 fi
@@ -265,7 +268,7 @@ if [ "$regim" -eq "1" ]; then
 	logger "send regim ON"
 	
 	ider_sender;
-
+	
 	cp -f $otv $fhomet"send"$ider_sender1".txt"
 	f_send=$fhomet"send"$ider_sender1".txt"
 	echo $bic > $fhomes"send"$ider_sender1".txt"
@@ -327,7 +330,15 @@ for (( i=1;i<=$str_col;i++)); do #.*[]^${}\+?|()
 	test_id=$(echo $test | awk '{print $3}')
 	logger "input2 out_id thinner test_id="$test_id
 	dddeee=$fhome"delete_id.txt"
-	! [ "$(grep $test_id $dddeee)" ] && send;
+	if ! [ "$(grep $test_id $dddeee)" ]; then
+		silent_mode;
+		if [ "$silent_mode" == "on" ]; then
+		[ "$(echo $test | grep "&\#128996;")" ] && send;
+		[ "$(echo $test | grep "&\#128308;")" ] && send;
+		else
+		send;
+		fi
+	fi
 	#thinner
 	if [ "$lego" == "out_id" ]; then
 		staaaaat;
@@ -337,6 +348,19 @@ done
 
 #rm -f $fhome$lego"0_tmp.txt"
 fi
+}
+
+
+silent_mode ()
+{
+silent_mode="off"
+if [ "$sm" == "1" ]; then
+		mdt1=$(date '+%H:%M:%S' | sed 's/\://g' | tr -d '\r')
+		if [ "$mdt1" \> "$mdt_start" ] && [ "$mdt1" \< "$mdt_end" ]; then
+			silent_mode="on"
+		fi
+fi
+logger "silent_mode="$silent_mode
 }
 
 
