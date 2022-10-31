@@ -5,8 +5,11 @@ cd /usr/share/zabbix/local && git clone https://github.com/Evonic4/zabbix_telegr
   
 settings in zabbix server:  
   ---
+echo "{EVENT.SEVERITY}: ID {EVENT.ID}: {EVENT.NAME} (host={HOST.NAME}) Started at {EVENT.TIME} {EVENT.DATE}" >> /usr/share/zabbix/local/trbot/in_id0.txt  
+  
 ![image](https://user-images.githubusercontent.com/46780974/129004502-ef5a25a9-6095-40c2-8209-9be9e7137fa5.png)  
   
+echo "{EVENT.SEVERITY}: ID {EVENT.ID}: {EVENT.NAME} (host={HOST.NAME}) Resolved on {EVENT.RECOVERY.TIME} {EVENT.RECOVERY.DATE}" >> /usr/share/zabbix/local/trbot/out_id0.txt  
 ![image](https://user-images.githubusercontent.com/46780974/129004677-80abd0db-bf80-4290-a387-81b044ddf783.png)
   
 settings:  
