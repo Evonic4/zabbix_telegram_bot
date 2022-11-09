@@ -46,6 +46,7 @@ sm=$(sed -n 18"p" $ftb"settings.conf" | tr -d '\r')
 logger "sm="$sm
 
 dddeee=$fhome"delete_id.txt"
+kkik=0
 }
 
 
@@ -220,7 +221,7 @@ parce ()
 #logger "parce start"
 #date1=`date '+ %d.%m.%Y %H:%M:%S'`
 mi_col=$(cat $cuf"in.txt" | grep -c update_id | tr -d '\r')
-logger "parce col upd_id ="$mi_col
+logger $update_id" parce col mi_col ="$mi_col
 upd_id=$(sed -n 1"p" $ftb"lastid.txt" | tr -d '\r')
 
 for (( i=1;i<=$mi_col;i++)); do
