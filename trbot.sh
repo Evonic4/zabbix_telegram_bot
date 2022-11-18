@@ -158,6 +158,7 @@ done
 input ()  		
 {
 #logger "input start"
+local inputok=1
 
 $ftb"cucu1.sh" &
 pauseloop;
@@ -166,10 +167,11 @@ if [ -f $cuf"in.txt" ]; then
 	if [ "$(cat $cuf"in.txt" | grep ":true,")" ]; then		
 		logger "input OK"
 	else
-		logger "input file+, timeout.." #error_code
-		cat $cuf"in.txt" >> $log
+		logger "input timeout.." #error_code
+		#cat $cuf"in.txt" >> $log
 		ffufuf1=1
 		sleep 1
+		inputok=0
 	fi
 else														
 	logger "input FAIL"
@@ -180,10 +182,12 @@ else
 		kill -9 $cu_pid
 		rm -f $cuf"cu1_pid.txt"
 		ffufuf1=1
+		sleep 1
+		inputok=0
 	fi
 fi
 
-#logger "input exit"
+return $inputok
 }
 
 
@@ -219,34 +223,35 @@ fi
 parce ()
 {
 #logger "parce start"
-#date1=`date '+ %d.%m.%Y %H:%M:%S'`
 mi_col=$(cat $cuf"in.txt" | grep -c update_id | tr -d '\r')
-logger $update_id" parce col mi_col ="$mi_col
 upd_id=$(sed -n 1"p" $ftb"lastid.txt" | tr -d '\r')
+logger "parce col lastid ="$upd_id" mi_col ="$mi_col
 
 for (( i=1;i<=$mi_col;i++)); do
 	i1=$((i-1))
 	mi=$(cat $ftb"in.txt" | jq ".result[$i1].update_id" | tr -d '\r')
-	[ "$lev_log" == "1" ] && logger "parce update_id="$mi
+	logger "parce update_id="$mi
 
 	[ -z "$mi" ] && mi=0
 	
-	[ "$lev_log" == "1" ] && logger "parce cycle upd_id="$upd_id", i="$i", mi="$mi
+	logger "parce cycle upd_id="$upd_id", i="$i", mi="$mi
 	if [ "$upd_id" -ge "$mi" ] || [ "$mi" -eq "0" ] || [ "$mi" == "null" ]; then
 		ffufuf=1
 		else
 		ffufuf=0
 	fi
-	[ "$lev_log" == "1" ] && logger "parce cycle ffufuf="$ffufuf
+	logger "parce cycle ffufuf="$ffufuf
 	
 	
 	if [ "$ffufuf" -eq "0" ]; then
+		date4=`date '+%H%M%S_%d%m%Y'`
+		cp -f $ftb"in.txt" $ftb"logs/"$date4".txt"
 		chat_id=$(cat $ftb"in.txt" | jq ".result[$i1].message.chat.id" | sed 's/-/z/g' | tr -d '\r')
-		[ "$lev_log" == "1" ] && logger "parce chat_id="$chat_id
+		logger "parce chat_id="$chat_id
 		if [ "$(echo $chat_id1|sed 's/-/z/g'| tr -d '\r'| grep $chat_id)" ]; then
-			[ "$lev_log" == "1" ] && logger "parse chat_id="$chat_id" -> OK"
+			logger "parse chat_id="$chat_id" -> OK"
 			text=$(cat $ftb"in.txt" | jq ".result[$i1].message.text" | sed 's/\"/ /g' | sed 's/^[ \t]*//;s/[ \t]*$//' | tr -d '\r')
-			[ "$lev_log" == "1" ] && logger "parse text="$text
+			logger "parse text="$text
 			#echo $text > $home_trbot"t.txt"
 			roborob;
 			
@@ -256,7 +261,7 @@ for (( i=1;i<=$mi_col;i++)); do
 		fi
 	fi
 done
-echo $mi > $ftb"lastid.txt"
+[ "$ffufuf" -eq "0" ] && echo $mi > $ftb"lastid.txt"
 
 }
 
@@ -390,7 +395,7 @@ ffufuf1=0
 lego="in_id"; bic="1"; input2;
 lego="out_id"; bic="2"; input2;
 input;
-parce;
+[ "$?" -eq "1" ] && parce;
 
 kkik=$(($kkik+1))
 [ "$kkik" -eq "$progons" ] && Init2
