@@ -25,8 +25,8 @@ name=$(sed -n 5"p" $ftb"settings.conf" | tr -d '\r')
 logger "name="$name
 sec=$(sed -n 6"p" $ftb"settings.conf" | tr -d '\r')
 logger "sec="$sec
-opov=$(sed -n 7"p" $ftb"settings.conf" | tr -d '\r')
-logger "opov="$opov
+datasource=$(sed -n 7"p" $ftb"settings.conf" | tr -d '\r')
+logger "datasource="$datasource
 chat_id1=$(sed -n 9"p" $ftb"settings.conf" | tr -d '\r')
 logger "chat_id1="$chat_id1
 progons=$(sed -n 11"p" $ftb"settings.conf" | tr -d '\r')
@@ -44,6 +44,19 @@ mdt_end=$(sed -n 17"p" $ftb"settings.conf" | sed 's/\://g' | tr -d '\r')
 logger "mdt_end="$mdt_end
 sm=$(sed -n 18"p" $ftb"settings.conf" | tr -d '\r')
 logger "sm="$sm
+#rabbitmq
+rserv=$(sed -n 19"p" $ftb"settings.conf" | tr -d '\r')
+logger "rserv="$rserv
+queue_in=$(sed -n 20"p" $ftb"settings.conf" | tr -d '\r')
+logger "queue_in="$queue_in
+queue_out=$(sed -n 21"p" $ftb"settings.conf" | tr -d '\r')
+logger "queue_out="$queue_out
+vhost=$(sed -n 22"p" $ftb"settings.conf" | tr -d '\r')
+logger "vhost="$vhost
+r_usr=$(sed -n 23"p" $ftb"settings.conf" | tr -d '\r')
+logger "r_usr="$r_usr
+r_pass=$(sed -n 24"p" $ftb"settings.conf" | tr -d '\r')
+logger "r_pass="$r_pass
 
 dddeee=$fhome"delete_id.txt"
 kkik=0
@@ -315,20 +328,28 @@ done
 
 }
 
+
 #Severity{EVENT.SEVERITY}
 input2 ()  		
 {
+
+if [ "$datasource" == "1" ]; then	#rabbitmq
+logger "input2 datasource="$datasource
+local q=$queue_in
+[ "$lego" == "out_id" ] && q=$queue_out
+
+curl -s -k -u $r_usr:$r_pass -H 'content-type:application/json' -X POST $rserv/api/queues/$vhost/$q/get -d '{"count":10,"ackmode":"ack_requeue_false","encoding":"auto","truncate":50000}' | jq '.[].payload' | sed 's/\"//g' > $fhome$lego"0.txt"
+
+fi
+
+
 str_col=$(grep -cv "^#" $fhome$lego"0.txt")
 
 if [ "$str_col" -gt "0" ]; then
 	logger "input2 "$lego" str_col="$str_col
-	cp -f $fhome$lego"0.txt" $fhome$lego"0_tmp.txt"
-	rm -f $fhome$lego"0.txt"
-	touch $fhome$lego"0.txt"
-	#echo "" > $fhome$lego"0.txt"
 	
 for (( i=1;i<=$str_col;i++)); do #.*[]^${}\+?|()
-	test=$(sed -n $i"p" $fhome$lego"0_tmp.txt" | sed 's/Information:/<b>\&\#9898\;<\/b>/g' | sed 's/Warning:/<b>\&\#x1F7E1\;<\/b>/g' | sed 's/Average:/<b>\&\#x1F7E0\;<\/b>/g' | sed 's/High:/<b>\&\#128308\;<\/b>/g' | sed 's/Disaster:/<b>\&\#128996\;<\/b>/g' | tr -d '\r')
+	test=$(sed -n $i"p" $fhome$lego"0.txt" | sed 's/Information:/<b>\&\#9898\;<\/b>/g' | sed 's/Warning:/<b>\&\#x1F7E1\;<\/b>/g' | sed 's/Average:/<b>\&\#x1F7E0\;<\/b>/g' | sed 's/High:/<b>\&\#128308\;<\/b>/g' | sed 's/Disaster:/<b>\&\#128996\;<\/b>/g' | tr -d '\r')
 	ider_sender;
 	otv=$fhome"input2send.txt"
 	echo $test > $otv
@@ -352,7 +373,7 @@ for (( i=1;i<=$str_col;i++)); do #.*[]^${}\+?|()
 	rm -f $fhome"input2send.txt"
 done
 
-#rm -f $fhome$lego"0_tmp.txt"
+#echo > $fhome$lego"0.txt"
 fi
 }
 
@@ -376,6 +397,12 @@ if ! [ -f $fPID ]; then
 PID=$$
 echo $PID > $fPID
 logger "start"
+
+#del old logs
+rm -d $fhomes
+rm -d $fhomet
+rm -d $fhomePD
+
 starten_furer;
 
 $fhome"sender.sh" &
@@ -391,6 +418,7 @@ do
 sec4=$(sed -n "8p" $ftb"settings.conf" | tr -d '\r')
 sleep $sec4
 ffufuf1=0
+
 
 lego="in_id"; bic="1"; input2;
 lego="out_id"; bic="2"; input2;
