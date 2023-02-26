@@ -25,6 +25,7 @@ curl -i -u user:password -H 'content-type:application/json' -X POST https://rabb
   
 ![image](https://user-images.githubusercontent.com/46780974/221439911-c5c34aee-be8f-4fd3-8e2f-4e809ced996d.png)
   
+start /usr/share/zabbix/local/trbot/rabbit_set.sh
 ----
 settings:  
 /usr/share/zabbix/local/trbot/settings.conf  
